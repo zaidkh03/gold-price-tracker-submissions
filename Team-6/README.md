@@ -2,8 +2,8 @@
 
 ## Team Members
 - **Yousef Zuaiant**
-- **Dana Alkhabbas**
-- **Ahmad Al Tamimi**
+- **Dana Alkhabbas**(product owner)
+- **Ahmad Al Tamimi**(scrum manster)
 
 ##  Project Idea & Overview
 This project is a comprehensive web application simulating a real-world gold tracking platform. Designed and built using HTML, CSS, and Vanilla JavaScript, the application allows users to view live gold market prices, read the latest financial news, and manage a personal digital vault of their gold assets. 
@@ -29,3 +29,7 @@ This project is a comprehensive web application simulating a real-world gold tra
 2. Navigate into the directory.
 3. Open `index.html` using a simple local server (Highly recommended: **Live Server** extension in VS Code).
 4. Register a new account, log in, browse live prices, toggle currencies (USD ⇄ JOD), and manage your dynamic gold assets vault!
+
+## Figma Link :https://www.figma.com/design/qnKpwVtPk96BMIf26I1ur4/GoldProject?node-id=0-1&t=5nu7pL8fxizoTCjd-1
+
+## Project manegment tool we used github projects :https://github.com/users/AR92-Dev/projects/1
