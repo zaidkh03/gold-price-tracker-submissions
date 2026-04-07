@@ -13,19 +13,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const ROW_CARD      = document.getElementById("rowCard");
     const IMG_INPUT     = document.getElementById("asset-img");
     const IMG_PREVIEW   = document.getElementById("img-preview");
+    const ADD_CARD      = document.querySelector(".add-asset-card");
 
     if (!ASSETS_FORM || !ROW_CARD) return;
 
     // ── User-scoped storage ──────────────────────────────────
-    const getUser = () => Auth.getCurrentUser();
-    const loadAssets = () => {
-        const u = getUser();
-        return u ? Auth.getUserAssets(u.email) : [];
-    };
+    // Auth is checked only when Add Asset card is clicked.
+    window.__assetsUserEmail = null;
+    window.__assetsList = [];
+
+    const loadAssets = () => window.__assetsList || [];
     const persistAssets = (assets) => {
-        const u = getUser();
-        if (u) Auth.saveUserAssets(u.email, assets);
+        window.__assetsList = assets;
+        if (window.__assetsUserEmail) Auth.saveUserAssets(window.__assetsUserEmail, assets);
     };
+
+    // ── Add asset card click auth check (ONLY HERE) ─────────
+    if (ADD_CARD) {
+        // Prevent Bootstrap from auto-opening modal before auth check.
+        ADD_CARD.removeAttribute("data-bs-toggle");
+        ADD_CARD.removeAttribute("data-bs-target");
+
+        ADD_CARD.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const user = Auth.getCurrentUser();
+            if (!user) {
+                window.location.href = "login-register.html";
+                return;
+            }
+
+            window.__assetsUserEmail = user.email;
+            window.__assetsList = Auth.getUserAssets(user.email) || [];
+
+            // Re-render cards for this logged-in user.
+            document.querySelectorAll('#rowCard > [id^="asset-"]').forEach(el => el.remove());
+            window.__assetsList.forEach(displayCard);
+            filterAssets();
+
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("addAssetModal"));
+            modal.show();
+        });
+    }
 
     // ── Image preview ────────────────────────────────────────
     let currentBase64 = "";
@@ -66,8 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.hide();
     });
 
-    // ── Load saved assets on boot ────────────────────────────
-    loadAssets().forEach(displayCard);
+    // ── No auth check on boot; page remains public ──────────
 
     // ── Currency toggle ──────────────────────────────────────
     const currBtn = document.getElementById("currency-toggle");
@@ -164,10 +192,9 @@ function displayCard(asset) {
 // ── Delete asset ─────────────────────────────────────────────
 window.deleteAsset = (id) => {
     if (!confirm("Delete this asset?")) return;
-    const user = Auth.getCurrentUser();
-    if (!user) return;
-    const assets = Auth.getUserAssets(user.email).filter(a => a.id !== id);
-    Auth.saveUserAssets(user.email, assets);
+    const assets = (window.__assetsList || []).filter(a => a.id !== id);
+    window.__assetsList = assets;
+    if (window.__assetsUserEmail) Auth.saveUserAssets(window.__assetsUserEmail, assets);
     document.getElementById(`asset-${id}`)?.remove();
 };
 
